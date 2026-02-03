@@ -330,15 +330,25 @@ def validate_uploaded_file(uploaded_file):
             if header != b'PK\x03\x04':
                 return False, "Security Check Failed: Invalid file signature for Excel."
         
-        # CSVs are text files and don't have consistent magic bytes, 
-        # but we can try to decode a chunk to ensure it's text.
+        # CSV Validation: Try parsing with pandas instead of simple text decoding
         if filename.endswith('.csv'):
-            try:
-                chunk = uploaded_file.read(1024)
-                uploaded_file.seek(0)
-                chunk.decode('utf-8')
-            except UnicodeDecodeError:
-                return False, "Security Check Failed: File is not a valid text/CSV file."
+            encodings = ['utf-8', 'latin-1', 'utf-8-sig', 'cp1252']
+            valid_csv = False
+            
+            for encoding in encodings:
+                try:
+                    uploaded_file.seek(0)
+                    # Try reading just a few rows to verify CSV structure
+                    pd.read_csv(uploaded_file, nrows=5, encoding=encoding)
+                    valid_csv = True
+                    break # Success
+                except Exception:
+                    continue
+            
+            uploaded_file.seek(0) # Always reset pointer after checks
+            
+            if not valid_csv:
+                 return False, "Security Check Failed: File is not a valid text/CSV file or has an unsupported encoding."
                 
     except Exception as e:
         return False, f"Validation Error: {str(e)}"
@@ -534,7 +544,16 @@ with tab1:
             try:
                 # Security: In-Memory Processing (No disk save)
                 if uploaded_file.name.endswith('.csv'):
-                    df = pd.read_csv(uploaded_file)
+                    encodings = ['utf-8', 'latin-1', 'utf-8-sig', 'cp1252']
+                    for encoding in encodings:
+                        try:
+                            uploaded_file.seek(0)
+                            df = pd.read_csv(uploaded_file, encoding=encoding)
+                            break
+                        except Exception:
+                            continue
+                    else:
+                         raise ValueError("Could not decode CSV with supported encodings.")
                 else:
                     df = pd.read_excel(uploaded_file)
                 
