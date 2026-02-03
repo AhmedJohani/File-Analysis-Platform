@@ -1,7 +1,7 @@
+import os
 os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
 import threading
 import signal
-import os
 import datetime
 import re
 import io  
