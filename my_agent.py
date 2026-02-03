@@ -661,11 +661,16 @@ with tab2:
                 st.markdown(result)
                 
                 # Dynamic Filename Generation
-                clean_topic = re.sub(r'[^a-zA-Z0-9\s]', '', user_intent[:30]).replace(' ', '_')
-                pdf_filename = f"Report_{clean_topic}_{datetime.date.today()}.pdf"
+                # Arabic-Friendly Cleaning: Allow all characters except illegal filename symbols
+                clean_topic = re.sub(r'[\\/*?:"<>|]', '', user_intent[:30]).strip()
+                prefix = "تقرير_" if st.session_state.language == "Arabic" else "Report_"
+                pdf_filename = f"{prefix}{clean_topic}_{datetime.date.today()}.pdf"
+                
+                # Dynamic PDF Title
+                pdf_internal_title = user_intent[:50]
                 
                 # Security: Generate PDF in memory
-                pdf_bytes = generate_pdf_bytes(str(result), t["pdf_title"], lang=language, t_dict=t)
+                pdf_bytes = generate_pdf_bytes(str(result), pdf_internal_title, lang=language, t_dict=t)
                 
                 if pdf_bytes:
                     st.download_button(
