@@ -14,6 +14,9 @@ from fpdf import FPDF
 import arabic_reshaper
 from bidi.algorithm import get_display
 
+# --- Streamlit Cloud Fix: Disable CrewAI Telemetry ---
+os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
+
 # --- Threading Patch for CrewAI ---
 if threading.current_thread() is not threading.main_thread():
     original_signal = signal.signal
@@ -148,7 +151,7 @@ with st.sidebar:
     if os.path.exists("logo.png"):
         col1, col2, col3 = st.columns([1, 4, 1])
         with col2:
-             st.image("logo.png", use_container_width=True)
+              st.image("logo.png", width="stretch")
     else:
         st.markdown("## AJ")
         
@@ -499,13 +502,13 @@ def visualize_data(df, t_dict):
                                 color_discrete_sequence=color_seq, template=chart_theme)
         # Ensure seamless background
         fig_hist.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_hist, use_container_width=True)
+        st.plotly_chart(fig_hist, width="stretch")
         
         if len(num_cols) > 1:
             fig_corr = px.imshow(df[num_cols].corr(), text_auto=True, title=t_dict["corr_title"], 
                                  color_continuous_scale='Teal', template=chart_theme)
             fig_corr.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig_corr, use_container_width=True)
+            st.plotly_chart(fig_corr, width="stretch")
 
     if len(cat_cols) > 0:
         st.info(t_dict["cat_cols"].format(cols=', '.join(cat_cols)))
@@ -515,7 +518,7 @@ def visualize_data(df, t_dict):
                          labels={'x': cat_cols[0], 'y': 'Count'},
                          color_discrete_sequence=color_seq, template=chart_theme)
         fig_bar.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_bar, width="stretch")
 
 # --- Main Layout ---
 st.markdown(f'<div class="main-header">{t["page_title"]}</div>', unsafe_allow_html=True)
@@ -530,7 +533,7 @@ df = None
 with tab1:
     st.markdown(t["upload_header"])
     st.markdown(t["supported_formats"])
-    uploaded_file = st.file_uploader("", type=["csv", "xlsx"])
+    uploaded_file = st.file_uploader(t["upload_header"], type=["csv", "xlsx"], label_visibility="collapsed")
     
     if uploaded_file:
         # Security: Validate File
@@ -559,7 +562,7 @@ with tab1:
                 
                 st.success(t["file_uploaded"].format(filename=uploaded_file.name))
                 st.markdown(t["data_preview"])
-                st.dataframe(df.head(), use_container_width=True)
+                st.dataframe(df.head(), width="stretch")
                 st.caption(t["data_stats"].format(rows=len(df), cols=len(df.columns)))
             except Exception as e:
                 logging.error(f"File processing error: {e}")

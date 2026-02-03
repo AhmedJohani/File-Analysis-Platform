@@ -5,4 +5,4 @@ pandas
 fpdf
 python-dotenv
 arabic-reshaper
-python-bidi
+python-bidigit add requirements.txt
