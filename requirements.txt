@@ -1,0 +1,8 @@
+streamlit
+crewai
+plotly
+pandas
+fpdf
+python-dotenv
+arabic-reshaper
+python-bidi
