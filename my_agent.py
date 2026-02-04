@@ -1,12 +1,16 @@
 import os
+# --- Streamlit Cloud Fix: Disable CrewAI Telemetry ---
 os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
 
+# --- Standard Library Imports ---
 import threading
 import signal
 import datetime
 import re
-import io  
+import io
 import logging
+
+# --- Third-Party Imports ---
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -15,9 +19,6 @@ from crewai import LLM, Agent, Task, Crew
 from fpdf import FPDF
 import arabic_reshaper
 from bidi.algorithm import get_display
-
-# --- Streamlit Cloud Fix: Disable CrewAI Telemetry ---
-os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
 
 # --- Threading Patch for CrewAI ---
 if threading.current_thread() is not threading.main_thread():
